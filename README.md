@@ -10,6 +10,4 @@ This is task manager app that allow you to manager your daily tasks. It has task
 
 ## Live demo
 
-   <a href="[http://google.pl](https://enchanting-dango-6bfb75.netlify.app
-)https://enchanting-dango-6bfb75.netlify.app
-" target="_blank">Task manager</a>
+   <a href="https://enchanting-dango-6bfb75.netlify.app" target="_blank">Task manager</a>
