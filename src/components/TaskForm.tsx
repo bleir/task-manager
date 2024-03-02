@@ -47,10 +47,7 @@ const TaskForm: FC = () => {
 		}
 	};
 
-	const handleClose = (
-		event?: React.SyntheticEvent | Event,
-		reason?: string
-	) => {
+	const handleClose = (_event: any, reason?: string) => {
 		if (reason === 'clickaway') {
 			return;
 		}
