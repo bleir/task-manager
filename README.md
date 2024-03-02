@@ -1,6 +1,6 @@
 # Task manager app
 
-This is task manager app that allow you to manager your daily tasks. It has task history and update statuses of each task. 
+This is task manager app that allow you to manager your daily tasks. It has task history and update statuses of each task. All tasks are written to local memory. 
 
 ## Installation 
 
@@ -11,3 +11,7 @@ This is task manager app that allow you to manager your daily tasks. It has task
 ## Live demo
 
    <a href="https://enchanting-dango-6bfb75.netlify.app" target="_blank">Task manager</a>
+
+### About code
+
+It was written in React, TypeScript, Material UI.
