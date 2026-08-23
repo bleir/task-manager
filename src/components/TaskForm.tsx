@@ -1,127 +1,276 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import {
   Box,
   TextField,
   Button,
-  Card,
-  CardActions,
-  CardContent,
+  Chip,
   Typography,
-  Snackbar,
 } from "@mui/material";
-import { useTaskContext } from "../context/TaskContext";
-import { useNavigate } from "react-router-dom";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AddIcon from "@mui/icons-material/Add";
-import Alert from "@mui/material/Alert";
-import PageIcon from "../public/assets/page_icon.svg";
+import AssignmentOutlinedIcon from "@mui/icons-material/AssignmentOutlined";
+import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { useTaskContext } from "../context/TaskContext";
+import { BreadcrumbsComponent } from "./Breadcrumbs";
+import { generateChipColor } from "../utils";
+
+const STEPS = [
+  {
+    title: "Name it",
+    description: "A short title that is obvious in the list.",
+  },
+  {
+    title: "Add context",
+    description: "What needs to happen, and why it matters.",
+  },
+  {
+    title: "Send it to the board",
+    description: "New work always starts in To Do.",
+  },
+];
 
 const TaskForm: FC = () => {
   const { addTask } = useTaskContext();
   const navigate = useNavigate();
+  const titleInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState<string>("");
   const [description, setDescription] = useState<string>("");
-  const [success, setSuccess] = useState<boolean>(false);
+  const canSubmit = title.trim() !== "" && description.trim() !== "";
+
+  useEffect(() => {
+    titleInputRef.current?.focus();
+  }, []);
 
   const handleAddTask = () => {
-    const newTask = {
-      id: Date.now().toString(),
-      title,
-      description,
-      status: "To Do",
-      createdAt: new Date(Date.now()),
-      history: [],
-    };
-
-    if (title !== "" && description !== "") {
-      addTask(newTask);
-      setTitle("");
-      setDescription("");
-      navigate("/tasks");
-      setSuccess(true);
-    }
-  };
-
-  const handleClose = (_event: any, reason?: string) => {
-    if (reason === "clickaway") {
+    if (!canSubmit) {
       return;
     }
 
-    setSuccess(false);
-  };
+    addTask({
+      id: Date.now().toString(),
+      title: title.trim(),
+      description: description.trim(),
+      status: "To Do",
+      createdAt: new Date(Date.now()),
+      history: [],
+    });
 
-  const renderAlert = () => {
-    return <Alert severity="success">Task successfully added.</Alert>;
+    navigate("/tasks", { state: { created: true } });
   };
 
   return (
-    <Card
+    <Box
       sx={{
+        width: "100%",
+        p: { xs: 3, sm: 4 },
         borderRadius: 4,
-        mb: 4,
-        boxShadow: "0 20px 60px rgba(15, 23, 42, 0.08)",
+        bgcolor: "background.paper",
+        boxShadow: "0 24px 70px rgba(15, 23, 42, 0.08)",
       }}
     >
-      <CardContent
-        sx={{ display: "flex", flexDirection: "column", gap: 3, p: 4 }}
+      <BreadcrumbsComponent currentPage="New" />
+      <Chip
+        label="Starts as To Do"
+        size="small"
+        color="default"
+        sx={{ mt: 1, mb: 2, fontWeight: 600 }}
+      />
+      <Typography variant="h4" sx={{ fontWeight: 700, letterSpacing: "-0.03em" }}>
+        Capture the next piece of work.
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 1, mb: 4, maxWidth: 520 }}>
+        Give it a clear title and enough context to pick up later. It will land
+        on the board in To Do.
+      </Typography>
+
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", md: "1.05fr 0.95fr" },
+          gap: { xs: 4, md: 5 },
+          alignItems: "start",
+        }}
       >
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 2,
-            flexWrap: "wrap",
-          }}
-        >
-          <img
-            src={PageIcon}
-            alt="page icon"
-            style={{ width: 32, height: 32 }}
-          />
-          <Typography variant="h6" sx={{ fontWeight: 700 }}>
-            Add a new task
-          </Typography>
+        <Box>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 2,
+                display: "grid",
+                placeItems: "center",
+                bgcolor: "rgba(9, 69, 235, 0.08)",
+                color: "secondary.main",
+              }}
+            >
+              <AssignmentOutlinedIcon fontSize="small" />
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 700 }}>Task details</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Both fields are needed before you can add it.
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2.5 }}>
+            <TextField
+              label="Title"
+              name="title"
+              variant="outlined"
+              fullWidth
+              inputRef={titleInputRef}
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Unblock checkout QA"
+              InputProps={{ sx: { borderRadius: 3 } }}
+            />
+
+            <TextField
+              label="Description"
+              name="description"
+              variant="outlined"
+              fullWidth
+              multiline
+              rows={5}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="What should happen next, and who is waiting on it?"
+              InputProps={{ sx: { borderRadius: 3 } }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "flex-end",
+              flexWrap: "wrap",
+              gap: 1.5,
+              mt: 3,
+            }}
+          >
+            <Button
+              variant="outlined"
+              onClick={() => navigate("/tasks")}
+              sx={{
+                borderRadius: 999,
+                px: 3,
+                textTransform: "capitalize",
+                borderColor: "grey.300",
+                color: "text.primary",
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              onClick={handleAddTask}
+              disabled={!canSubmit}
+              sx={{ borderRadius: 999, px: 4, textTransform: "capitalize" }}
+              startIcon={<AddIcon fontSize="small" />}
+            >
+              Add to board
+            </Button>
+          </Box>
         </Box>
 
-        <TextField
-          label="Title"
-          name="title"
-          variant="outlined"
-          fullWidth
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          InputProps={{ sx: { borderRadius: "32px" } }}
-        />
-
-        <TextField
-          label="Description"
-          name="description"
-          variant="outlined"
-          fullWidth
-          multiline
-          rows={4}
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          InputProps={{ sx: { borderRadius: 3 } }}
-        />
-      </CardContent>
-
-      <CardActions
-        sx={{ display: "flex", justifyContent: "flex-end", px: 4, pb: 4 }}
-      >
-        <Button
-          variant="contained"
-          onClick={handleAddTask}
-          sx={{ borderRadius: 4, px: 4, textTransform: "capitalize" }}
-          startIcon={<AddIcon fontSize="small" />}
+        <Box
+          sx={{
+            p: { xs: 2, sm: 2.5 },
+            borderRadius: 3,
+            bgcolor: "grey.50",
+            border: "1px solid",
+            borderColor: "grey.200",
+          }}
         >
-          Add Task
-        </Button>
-      </CardActions>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              mb: 2,
+            }}
+          >
+            <Typography sx={{ fontWeight: 700 }}>Board preview</Typography>
+            <Chip size="small" label="Live" sx={{ bgcolor: "background.paper" }} />
+          </Box>
 
-      <Snackbar open={success} autoHideDuration={3000} onClose={handleClose}>
-        {renderAlert()}
-      </Snackbar>
-    </Card>
+          <Box
+            sx={{
+              p: 2.5,
+              mb: 2.5,
+              borderRadius: 3,
+              bgcolor: "background.paper",
+              boxShadow: "0 10px 30px rgba(15, 23, 42, 0.05)",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "flex-start",
+                justifyContent: "space-between",
+                gap: 1.5,
+                mb: 1,
+              }}
+            >
+              <Typography sx={{ fontWeight: 600, lineHeight: 1.3 }}>
+                {title.trim() || "Untitled task"}
+              </Typography>
+              <Chip size="small" color={generateChipColor("To Do")} label="To Do" />
+            </Box>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                fontSize: 12,
+                color: "text.secondary",
+                mb: 1,
+              }}
+            >
+              <AccessTimeIcon fontSize="small" sx={{ mr: 0.75 }} />
+              Created: {format(new Date(), "MMM dd, yyyy - h:mm aaa")}
+            </Box>
+            <Typography variant="body2" color="text.secondary">
+              {description.trim() ||
+                "The description will appear here as you type."}
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: "grid", gap: 1.5 }}>
+            {STEPS.map((step, index) => (
+              <Box key={step.title} sx={{ display: "flex", gap: 1.5 }}>
+                <Box
+                  sx={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                    display: "grid",
+                    placeItems: "center",
+                    bgcolor: "primary.main",
+                    color: "common.white",
+                    fontSize: 12,
+                    fontWeight: 700,
+                  }}
+                >
+                  {index + 1}
+                </Box>
+                <Box>
+                  <Typography sx={{ fontWeight: 600, fontSize: 14 }}>
+                    {step.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {step.description}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 

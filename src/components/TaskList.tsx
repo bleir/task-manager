@@ -2,15 +2,14 @@ import { FC, useState } from "react";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
 import {
+  Box,
   Card,
   CardContent,
   Chip,
   IconButton,
-  List,
-  ListItem,
-  ListItemText,
   Menu,
   MenuItem,
+  Typography,
 } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import InsertInvitationOutlinedIcon from "@mui/icons-material/InsertInvitationOutlined";
@@ -91,7 +90,7 @@ const TaskList: FC = () => {
 
   return (
     <>
-      <List sx={{ mt: 4 }}>
+      <Box sx={{ display: "grid", gap: 2 }}>
         {tasks.length > 0 ? (
           tasks.map((task) => {
             return (
@@ -99,51 +98,47 @@ const TaskList: FC = () => {
                 key={task.id}
                 sx={{
                   borderRadius: 4,
-                  mb: 3,
-                  boxShadow: "0 20px 60px rgba(15, 23, 42, 0.08)",
+                  boxShadow: "0 16px 40px rgba(15, 23, 42, 0.06)",
+                  transition: "transform 180ms ease, box-shadow 180ms ease",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 20px 48px rgba(15, 23, 42, 0.1)",
+                  },
                 }}
               >
-                <CardContent sx={{ p: 3 }}>
-                  <ListItem
+                <CardContent sx={{ p: { xs: 2.5, sm: 3 } }}>
+                  <Box
                     sx={{
                       display: "flex",
-                      justifyContent: "space-between",
                       alignItems: "flex-start",
-                      p: 0,
+                      justifyContent: "space-between",
+                      gap: 2,
+                      mb: 1.25,
                     }}
                   >
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
+                    <Typography
+                      sx={{
+                        fontWeight: 700,
+                        fontSize: { xs: 18, sm: 20 },
+                        letterSpacing: "-0.02em",
+                        lineHeight: 1.3,
+                        pr: 1,
                       }}
                     >
-                      <ListItemText primary={task.title} />
-
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontSize: 12,
-                          color: "#949598",
-                        }}
-                      >
-                        <AccessTimeIcon
-                          fontSize="small"
-                          style={{ marginRight: 5 }}
-                        />
-                        Created:
-                        {format(task.createdAt, "MMM dd, yyyy - h:m aaa")}
-                      </div>
-                      <div>{task.description}</div>
-                    </div>
-
-                    <div>
+                      {task.title}
+                    </Typography>
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        flexShrink: 0,
+                      }}
+                    >
                       <Chip
                         color={generateChipColor(task.status)}
                         label={task.status}
+                        sx={{ fontWeight: 600 }}
                       />
-
                       <IconButton
                         aria-label="options"
                         aria-controls={`options-menu-${task.id}`}
@@ -152,7 +147,6 @@ const TaskList: FC = () => {
                       >
                         <MoreVertIcon />
                       </IconButton>
-
                       <Menu
                         id={`options-menu-${task.id}`}
                         anchorEl={anchorEl}
@@ -185,7 +179,6 @@ const TaskList: FC = () => {
                             Edit Task
                           </MenuItem>
                         )}
-
                         <MenuItem
                           onClick={() => handleMenuAction(task.id, "delete")}
                           style={{ color: "red" }}
@@ -200,8 +193,34 @@ const TaskList: FC = () => {
                           Delete Task
                         </MenuItem>
                       </Menu>
-                    </div>
-                  </ListItem>
+                    </Box>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      color: "text.secondary",
+                      mb: 1.5,
+                    }}
+                  >
+                    <AccessTimeIcon sx={{ fontSize: 16, mr: 0.75 }} />
+                    <Typography variant="caption" sx={{ letterSpacing: "0.01em" }}>
+                      Created {format(task.createdAt, "MMM dd, yyyy · h:mm aaa")}
+                    </Typography>
+                  </Box>
+
+                  <Typography
+                    sx={{
+                      color: "text.secondary",
+                      fontSize: 15,
+                      lineHeight: 1.7,
+                      letterSpacing: "0.01em",
+                      maxWidth: 640,
+                    }}
+                  >
+                    {task.description}
+                  </Typography>
                 </CardContent>
               </Card>
             );
@@ -209,7 +228,7 @@ const TaskList: FC = () => {
         ) : (
           <EmptyTasks />
         )}
-      </List>
+      </Box>
 
       <TaskHistoryModal
         isOpen={isHistoryModalOpen}

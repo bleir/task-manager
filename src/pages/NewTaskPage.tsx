@@ -1,11 +1,8 @@
 import React from "react";
 import { Box, Container } from "@mui/material";
-import { useParams } from "react-router-dom";
-import EditTaskForm from "../components/EditTaskForm";
+import TaskForm from "../components/TaskForm";
 
-const EditPage: React.FC = () => {
-  const { taskId } = useParams();
-
+const NewTaskPage: React.FC = () => {
   return (
     <Container
       maxWidth="md"
@@ -31,9 +28,9 @@ const EditPage: React.FC = () => {
           pointerEvents: "none",
         }}
       />
-      <EditTaskForm taskId={taskId ?? ""} />
+      <TaskForm />
     </Container>
   );
 };
 
-export default EditPage;
+export default NewTaskPage;

@@ -3,7 +3,7 @@ import { TaskStatus } from './types';
 export const generateChipColor = (status: string) => {
 	switch (status) {
 		case 'To Do':
-			return 'primary';
+			return 'default';
 		case 'In Progress':
 			return 'secondary';
 		case 'In QA':
